@@ -1,0 +1,6 @@
+tmp/
+logs/
+.air.toml
+.git/
+.vscode/
+.idea/
