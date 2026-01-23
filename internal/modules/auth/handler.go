@@ -45,5 +45,5 @@ func (h *AuthHandler) JWKS(c *gin.Context) {
 		util.ErrorResponse(c, http.StatusInternalServerError, "Failed to serve JWKS")
 		return
 	}
-	util.SuccessResponse(c, http.StatusOK, jwks)
+	c.JSON(http.StatusOK, jwks)
 }
