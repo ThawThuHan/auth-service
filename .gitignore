@@ -22,5 +22,6 @@ tmp/
 *.db
 *.sqlite
 *.sqlite3
+*.tgz
 
 keys/

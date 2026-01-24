@@ -1,0 +1,56 @@
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: 10.11.0.20/kubernetes-testing/auth-service
+  pullPolicy: Always
+  tag: v4
+  pullSecrets:
+    - harbor-regcred
+
+podLabels: { app: auth-service, env: development }
+
+container:
+  ports:
+    - containerPort: 8080
+  volumeMounts:
+    - name: secret
+      readOnly: true
+      mountPath: /etc/auth/private-key
+    - name: config
+      readOnly: true
+      mountPath: /etc/auth/public-key
+
+volumes:
+  - name: secret
+    type: secret
+  - name: config
+    type: configMap
+
+service:
+  type: ClusterIP
+  httpPort: 80
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+      name: http
+
+deployment:
+  replicaCount: 1
+
+config: {} # it will be populated during helm install/upgrade with --set config.<key>=<value>
+  
+secret:
+  data: {} # it will be populated during helm install/upgrade with --set secret.data.<key>=<value>
+    
+
+httpRoute:
+  enabled: true
+  parentRefs:
+    - name: eg
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /auth

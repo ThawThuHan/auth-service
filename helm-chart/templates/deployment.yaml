@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "helm.fullname" . }}
+  labels:
+    {{ include "helm.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.deployment.replicaCount }}
+  selector:
+    matchLabels:
+      {{ include "helm.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      name: {{ include "helm.fullname" . }}
+      labels:
+        {{ include "helm.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      containers:
+        - name: {{ include "helm.name" . }}
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            {{- toYaml .Values.container.ports | nindent 12 }}
+          {{- with .Values.container.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "helm.fullname" . }}-config
+            - secretRef:
+                name: {{ include "helm.fullname" . }}-secret
+      imagePullSecrets:
+      	{{- range .Values.image.pullSecrets }}
+        - name: {{ . }}
+        {{- end }}
+      volumes:
+        {{- range .Values.volumes }}
+        - name: {{ .name }}
+          {{- if eq .type "configMap" }}
+          configMap:
+            name: {{ include "helm.fullname" $ }}-config
+          {{- else if eq .type "secret" }}
+          secret:
+            secretName: {{ include "helm.fullname" $ }}-secret
+          {{- end }}
+        {{- end }}
