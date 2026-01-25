@@ -33,6 +33,14 @@ spec:
                 name: {{ include "helm.fullname" . }}-config
             - secretRef:
                 name: {{ include "helm.fullname" . }}-secret
+          {{- with .Values.container.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.container.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
       imagePullSecrets:
       	{{- range .Values.image.pullSecrets }}
         - name: {{ . }}
