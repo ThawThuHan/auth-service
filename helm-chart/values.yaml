@@ -20,6 +20,14 @@ container:
     - name: config
       readOnly: true
       mountPath: /etc/auth/public-key
+  # livenessProbe: # optional
+  #   httpGet:
+  #     path: /
+  #     port: http
+  # readinessProbe:
+  #   httpGet:
+  #     path: /
+  #     port: http
 
 volumes:
   - name: secret
