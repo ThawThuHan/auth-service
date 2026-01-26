@@ -1,7 +1,6 @@
 .env
 logs/
 *.log
-go.sum
 build/
 .air.toml
 tmp/
