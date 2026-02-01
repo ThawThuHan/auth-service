@@ -29,6 +29,7 @@ pipeline {
         }
 
         stage('Checkout') {
+            agent any
             steps {
                 checkout scm
             }
