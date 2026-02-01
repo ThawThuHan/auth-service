@@ -95,6 +95,7 @@ pipeline {
             }
             steps {
                 sh '''
+                    rm -rf ./helm-chart-output || true
                     echo "helm chart building..."
                     helm package ./helm-chart \
                     --version ${CHART_VERSION} \
