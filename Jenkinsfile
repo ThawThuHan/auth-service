@@ -164,7 +164,7 @@ pipeline {
                     mkdir -p $HELM_CONFIG_HOME $HELM_CACHE_HOME $HELM_DATA_HOME
                     echo "deploying helm chart..."
                     export KUBECONFIG=$KUBECONFIG
-                    helm registry login -u ${HARBOR_USER} --password-stdin ${HARBOR_REGISTRY} <<< ${HARBOR_PASSWORD}
+                    echo "$HARBOR_PASSWORD" | helm registry login -u ${HARBOR_USER} --password-stdin ${HARBOR_REGISTRY} --insecure
                     helm upgrade --install ${APP_NAME} oci://${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${HELM_CHART} \
                         --namespace testing --create-namespace \
                         --set image.repository=${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${APP_NAME} \
@@ -172,6 +172,7 @@ pipeline {
                         --set-file secret.data.PRIVATE_KEY=${PRIVATE_KEY} \
                         --set-file config.PUBLIC_KEY=${PUBLIC_KEY} \
                         --set secret.data.JWT_SECRET=${JWT_SECRET} \
+                        --insecure-skip-tls-verify \
                         --wait --timeout 5m0s
                 '''
                 }
