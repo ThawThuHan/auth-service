@@ -14,8 +14,6 @@ FROM alpine:3.19
 
 WORKDIR /app
 
-COPY ./keys/ /app/keys/
-
 COPY --from=builder /app/auth-service .
 
 CMD ["./auth-service"]
