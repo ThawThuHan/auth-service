@@ -14,16 +14,21 @@ pipeline {
                 script {
                     if (env.CHANGE_ID) {
                         echo "This is a pull request build for PR #${env.CHANGE_ID}"
-                        env.APP_VERSION = "pr-${env.CHANGE_ID}-${env.BUILD_NUMBER}"
-                        env.FULL_IMAGE_TAG = "${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${APP_NAME}:${env.APP_VERSION}"
+
+                        env.APP_VERSION   = "pr-${env.CHANGE_ID}-${env.BUILD_NUMBER}"
+                        env.CHART_VERSION = "0.1.0-pr.${env.CHANGE_ID}.${env.BUILD_NUMBER}"
+
                         env.HARBOR_ROBOT_CREDENTIAL_ID = "harbor-robot-for-kubernetes-testing"
                     } else {
                         echo "This is a branch build for ${env.BRANCH_NAME}"
-                        env.APP_VERSION = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
-                        env.FULL_IMAGE_TAG = "${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${APP_NAME}:${env.APP_VERSION}"
+
+                        env.APP_VERSION   = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
+                        env.CHART_VERSION = "0.1.0"
+
                         env.LATEST_IMAGE_TAG = "${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${APP_NAME}:latest"
                         env.HARBOR_ROBOT_CREDENTIAL_ID = "harbor-robot-for-kubernetes-prod"
                     }
+                    env.FULL_IMAGE_TAG = "${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${APP_NAME}:${env.APP_VERSION}"
                 }
             }
         }
@@ -88,7 +93,10 @@ pipeline {
             steps {
                 sh '''
                     echo "helm chart building..."
-                    helm package ./helm-chart --version ${APP_VERSION} --app-version ${APP_VERSION} -d ./helm-chart-output
+                    helm package ./helm-chart \
+                    --version ${CHART_VERSION} \
+                    --app-version ${APP_VERSION} \
+                    -d ./helm-chart-output
                 '''
                 stash includes: 'helm-chart-output/*.tgz', name: 'helm-chart'
             }
