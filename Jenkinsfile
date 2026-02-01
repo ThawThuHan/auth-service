@@ -172,6 +172,7 @@ pipeline {
                         --set-file secret.data.PRIVATE_KEY=${PRIVATE_KEY} \
                         --set-file config.PUBLIC_KEY=${PUBLIC_KEY} \
                         --set secret.data.JWT_SECRET=${JWT_SECRET} \
+                        --reset-values \
                         --insecure-skip-tls-verify \
                         --wait --timeout 5m0s
                 '''
