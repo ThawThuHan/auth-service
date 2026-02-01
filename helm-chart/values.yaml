@@ -47,7 +47,17 @@ service:
 deployment:
   replicaCount: 1
 
-config: {} # it will be populated during helm install/upgrade with --set config.<key>=<value>
+config:
+  ENV: development
+  HOST: "0.0.0.0"
+  PORT: "8080"
+  USER_SVC_ADDR: "user-service"
+  USER_SVC_PORT: "50051"
+  PUBLIC_KEY_PATH: /etc/auth/public-key/PUBLIC_KEY
+  PRIVATE_KEY_PATH: /etc/auth/private-key/PRIVATE_KEY
+  JWT_KEY_ID: auth-service-key-1
+  JWT_ISSUER: http://auth-service
+  JWT_AUDIENCE: api-gateway
   
 secret:
   data: {} # it will be populated during helm install/upgrade with --set secret.data.<key>=<value>
