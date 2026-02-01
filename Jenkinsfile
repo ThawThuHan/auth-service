@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    options {
+        skipDefaultCheckout(true)
+    }
 
     environment {
         APP_NAME = "auth-service"
@@ -120,8 +123,8 @@ pipeline {
                         unstash 'helm-chart'
                         sh '''
                             echo "helm chart pushing..."
-                            echo "${HARBOR_PASSWORD}" | helm registry login -u ${HARBOR_USER} --password-stdin ${HARBOR_REGISTRY}
-                            helm push helm-chart-output/*.tgz oci://${HARBOR_REGISTRY}/${HARBOR_PROJECT}
+                            echo "${HARBOR_PASSWORD}" | helm registry login -u ${HARBOR_USER} --password-stdin ${HARBOR_REGISTRY} --insecure
+                            helm push helm-chart-output/*.tgz oci://${HARBOR_REGISTRY}/${HARBOR_PROJECT} --insecure-skip-tls-verify
                         '''
                     }
                 }
