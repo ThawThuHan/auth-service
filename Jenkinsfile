@@ -39,7 +39,10 @@ pipeline {
             agent {
                 docker {
                     image 'golang:1.25.1'
-                    args '-v $HOME/go/pkg/mod:/go/pkg/mod'
+                    args '''
+                        -v /go/pkg/mod:/go/pkg/mod
+                        -v $HOME/.cache/go-build:/go/build
+                    '''
                 }
             }
 
