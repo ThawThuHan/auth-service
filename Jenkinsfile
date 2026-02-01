@@ -122,6 +122,11 @@ pipeline {
                         )]) {
                         unstash 'helm-chart'
                         sh '''
+                            set -e
+                            export HELM_CONFIG_HOME=$WORKSPACE/.helm/config
+                            export HELM_CACHE_HOME=$WORKSPACE/.helm/cache
+                            export HELM_DATA_HOME=$WORKSPACE/.helm/data
+                            mkdir -p $HELM_CONFIG_HOME $HELM_CACHE_HOME $HELM_DATA_HOME
                             echo "helm chart pushing..."
                             echo "${HARBOR_PASSWORD}" | helm registry login -u ${HARBOR_USER} --password-stdin ${HARBOR_REGISTRY} --insecure
                             helm push helm-chart-output/*.tgz oci://${HARBOR_REGISTRY}/${HARBOR_PROJECT} --insecure-skip-tls-verify
@@ -151,6 +156,12 @@ pipeline {
                     )
                 ]) {
                 sh '''
+                    set -e
+                    export HELM_CONFIG_HOME=$WORKSPACE/.helm/config
+                    export HELM_CACHE_HOME=$WORKSPACE/.helm/cache
+                    export HELM_DATA_HOME=$WORKSPACE/.helm/data
+                    mkdir -p $HELM_CONFIG_HOME $HELM_CACHE_HOME $HELM_DATA_HOME
+                    echo "deploying helm chart..."
                     export KUBECONFIG=$KUBECONFIG
                     helm registry login -u ${HARBOR_USER} --password-stdin ${HARBOR_REGISTRY} <<< ${HARBOR_PASSWORD}
                     helm upgrade --install ${APP_NAME} oci://${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${HELM_CHART} \
