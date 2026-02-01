@@ -82,6 +82,7 @@ pipeline {
             agent {
                 docker {
                     image 'alpine/helm:4'
+                    args '--entrypoint=""'
                 }
             }
             steps {
@@ -97,6 +98,7 @@ pipeline {
             agent {
                 docker {
                     image 'alpine/helm:4'
+                    args '--entrypoint=""'
                 }
             }
             steps {
