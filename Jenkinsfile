@@ -120,7 +120,7 @@ pipeline {
                         unstash 'helm-chart'
                         sh '''
                             echo "helm chart pushing..."
-                            helm registry login -u ${HARBOR_USER} --password-stdin ${HARBOR_REGISTRY} <<< ${HARBOR_PASSWORD}
+                            echo "${HARBOR_PASSWORD}" | helm registry login -u ${HARBOR_USER} --password-stdin ${HARBOR_REGISTRY}
                             helm push helm-chart-output/*.tgz oci://${HARBOR_REGISTRY}/${HARBOR_PROJECT}
                         '''
                     }
