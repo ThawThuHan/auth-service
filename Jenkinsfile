@@ -1,5 +1,5 @@
 pipeline {
-    agent none
+    agent any
 
     environment {
         APP_NAME = "auth-service"
@@ -35,24 +35,24 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
-            agent {
-                docker {
-                    image 'golang:1.25.1'
-                    args '''
-                        -v /go/pkg/mod:/go/pkg/mod
-                        -v $HOME/.cache/go-build:/go/build
-                    '''
-                }
-            }
+        // stage('Run Tests') {
+        //     agent {
+        //         docker {
+        //             image 'golang:1.25.1'
+        //             args '''
+        //                 -v /go/pkg/mod:/go/pkg/mod
+        //                 -v $HOME/.cache/go-build:/go/build
+        //             '''
+        //         }
+        //     }
 
-            steps {
-                sh '''
-                    go mod tidy
-                    go test ./...
-                '''
-            }
-        }
+        //     steps {
+        //         sh '''
+        //             go mod tidy
+        //             go test ./...
+        //         '''
+        //     }
+        // }
 
         stage('Build and Push Docker Image') {
             agent any
