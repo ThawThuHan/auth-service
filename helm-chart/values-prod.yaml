@@ -1,0 +1,76 @@
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: 10.11.0.20/kubernetes-testing/auth-service
+  pullPolicy: Always
+  tag: v4
+  pullSecrets:
+    - harbor-regcred
+
+podLabels: { app: auth-service, env: production }
+
+container:
+  ports:
+    - containerPort: 8080
+  volumeMounts:
+    - name: secret
+      readOnly: true
+      mountPath: /etc/auth/private-key
+    - name: config
+      readOnly: true
+      mountPath: /etc/auth/public-key
+  # livenessProbe: # optional
+  #   httpGet:
+  #     path: /
+  #     port: http
+  # readinessProbe:
+  #   httpGet:
+  #     path: /
+  #     port: http
+
+volumes:
+  - name: secret
+    type: secret
+  - name: config
+    type: configMap
+
+service:
+  type: ClusterIP
+  httpPort: 80
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+      name: http
+
+deployment:
+  replicaCount: 1
+
+config:
+  ENV: production
+  HOST: "0.0.0.0"
+  PORT: "8080"
+  USER_SVC_ADDR: "user-service"
+  USER_SVC_PORT: "50051"
+  PUBLIC_KEY_PATH: /etc/auth/public-key/PUBLIC_KEY
+  PRIVATE_KEY_PATH: /etc/auth/private-key/PRIVATE_KEY
+  JWT_KEY_ID: auth-service-key-1
+  JWT_ISSUER: http://auth-service
+  JWT_AUDIENCE: api-gateway
+  
+secret:
+  data: {} # it will be populated during helm install/upgrade with --set secret.data.<key>=<value>
+    
+
+httpRoute:
+  enabled: true
+  parentRefs:
+    - name: prod-gateway
+      kind: Gateway
+      group: gateway.networking.k8s.io
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /auth

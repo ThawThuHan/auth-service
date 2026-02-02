@@ -9,6 +9,7 @@ pipeline {
         HARBOR_REGISTRY = "10.11.0.20"
         HARBOR_PROJECT = "kubernetes-testing"
         HELM_CHART = "auth-service"
+        ENVIRONMENT = "testing"
     }
 
     stages {
@@ -30,6 +31,7 @@ pipeline {
 
                         env.LATEST_IMAGE_TAG = "${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${APP_NAME}:latest"
                         env.HARBOR_ROBOT_CREDENTIAL_ID = "harbor-robot-for-kubernetes-prod"
+                        env.ENVIRONMENT = "production"
                     }
                     env.FULL_IMAGE_TAG = "${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${APP_NAME}:${env.APP_VERSION}"
                 }
@@ -165,7 +167,21 @@ pipeline {
                     echo "deploying helm chart..."
                     export KUBECONFIG=$KUBECONFIG
                     echo "$HARBOR_PASSWORD" | helm registry login -u ${HARBOR_USER} --password-stdin ${HARBOR_REGISTRY} --insecure
-                    helm upgrade --install ${APP_NAME} oci://${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${HELM_CHART} \
+                    if [ "${ENVIRONMENT}" = "production" ]; then
+                        helm upgrade --install ${APP_NAME} oci://${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${HELM_CHART} \
+                        --version ${CHART_VERSION} \
+                        --namespace prod --create-namespace \
+                        --set image.repository=${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${APP_NAME} \
+                        --set image.tag=${APP_VERSION} \
+                        --set-file secret.data.PRIVATE_KEY=${PRIVATE_KEY} \
+                        --set-file config.PUBLIC_KEY=${PUBLIC_KEY} \
+                        --set secret.data.JWT_SECRET=${JWT_SECRET} \
+                        --reset-values \
+                        --insecure-skip-tls-verify \
+                        -f ./helm-chart/values-prod.yaml \
+                        --wait --timeout 5m0s
+                    else
+                        helm upgrade --install ${APP_NAME} oci://${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${HELM_CHART} \
                         --version ${CHART_VERSION} \
                         --namespace testing --create-namespace \
                         --set image.repository=${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${APP_NAME} \
@@ -176,6 +192,7 @@ pipeline {
                         --reset-values \
                         --insecure-skip-tls-verify \
                         --wait --timeout 5m0s
+                    fi
                 '''
                 }
             }
