@@ -166,6 +166,7 @@ pipeline {
                     export KUBECONFIG=$KUBECONFIG
                     echo "$HARBOR_PASSWORD" | helm registry login -u ${HARBOR_USER} --password-stdin ${HARBOR_REGISTRY} --insecure
                     helm upgrade --install ${APP_NAME} oci://${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${HELM_CHART} \
+                        --version ${CHART_VERSION} \
                         --namespace testing --create-namespace \
                         --set image.repository=${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${APP_NAME} \
                         --set image.tag=${APP_VERSION} \
